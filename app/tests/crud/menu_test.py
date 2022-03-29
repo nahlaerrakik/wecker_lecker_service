@@ -1,33 +1,9 @@
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from app.crud.category import insert_category
 from app.crud.menu import insert_menu
 from app.crud.menu import query_menu
 from app.crud.menu import query_menus
 from app.schemas.category import CategoryCreate
 from app.schemas.menu import MenuCreate
-from app.sql.database import Base
-
-SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\\wecker_lecker_service\\app\\sql\\test.db"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-@pytest.fixture()
-def session():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-
-    db = TestingSessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def test_insert_menu(session):

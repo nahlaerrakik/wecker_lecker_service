@@ -9,11 +9,11 @@ from app.crud.category import query_category
 from app.crud.menu import insert_menu
 from app.crud.menu import query_menu
 from app.crud.menu import query_menus
+from app.schemas.menu import MenuCreate
+from app.schemas.menu import MenuGet
 from app.sql.database import Base
 from app.sql.database import engine
 from app.sql.database import get_db
-from app.schemas.menu import MenuGet
-from app.schemas.menu import MenuCreate
 
 router = APIRouter()
 

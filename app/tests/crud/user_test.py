@@ -1,31 +1,7 @@
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from app.crud.user import insert_user
+from app.crud.user import insert_user, update_user
 from app.crud.user import query_user
 from app.crud.user import query_users
-from app.schemas.user import UserCreate
-from app.sql.database import Base
-
-SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\\wecker_lecker_service\\app\\sql\\test.db"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-@pytest.fixture()
-def session():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-
-    db = TestingSessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
+from app.schemas.user import UserCreate, UserUpdate
 
 
 def test_insert_user(session):
@@ -97,3 +73,72 @@ def test_query_users_empty_result(session):
 def test_query_user_non_existent_user(session):
     result = query_user(db=session, email="notfound@email.com")
     assert result is None
+
+
+def test_update_user_first_name(session):
+    user = insert_user(
+        db=session,
+        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
+    )
+
+    user_update = UserUpdate(email=user.email, first_name="test")
+    result = update_user(db=session, user=user_update)
+
+    assert result.email == user.email
+    assert result.first_name == "Test"
+    assert result.last_name == user.last_name.upper()
+    assert result.password == user.password
+    assert result.is_active is False
+
+
+def test_update_user_last_name(session):
+    user = insert_user(
+        db=session,
+        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
+    )
+
+    user_update = UserUpdate(email=user.email, last_name="test")
+    result = update_user(db=session, user=user_update)
+
+    assert result.email == user.email
+    assert result.first_name == user.first_name.capitalize()
+    assert result.last_name == "TEST"
+    assert result.password == user.password
+    assert result.is_active is False
+
+
+def test_update_user_password(session):
+    user = insert_user(
+        db=session,
+        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
+    )
+
+    user_update = UserUpdate(email=user.email, password="test")
+    result = update_user(db=session, user=user_update)
+
+    assert result.email == user.email
+    assert result.first_name == user.first_name.capitalize()
+    assert result.last_name == user.last_name.upper()
+    assert result.password == "test"
+    assert result.is_active is False
+
+
+def test_update_user_is_active(session):
+    user = insert_user(
+        db=session,
+        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
+    )
+
+    user_update = UserUpdate(email=user.email, is_active=True)
+    result = update_user(db=session, user=user_update)
+
+    assert result.email == user.email
+    assert result.first_name == user.first_name.capitalize()
+    assert result.last_name == user.last_name.upper()
+    assert result.password == user.password
+    assert result.is_active is True
+
+
+def test_update_user_with_non_existent_user(session):
+    user_update = UserUpdate(email="joe@doe.com")
+    assert update_user(db=session, user=user_update) is None

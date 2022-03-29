@@ -1,17 +1,17 @@
 from typing import List
 
 from fastapi import APIRouter
-from fastapi import HTTPException
 from fastapi import Depends
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.crud.category import insert_category, query_category
 from app.crud.category import query_categories
+from app.schemas.category import CategoryCreate
+from app.schemas.category import CategoryGet
 from app.sql.database import Base
 from app.sql.database import engine
 from app.sql.database import get_db
-from app.schemas.category import CategoryGet
-from app.schemas.category import CategoryCreate
 
 Base.metadata.create_all(bind=engine)
 

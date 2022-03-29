@@ -8,4 +8,3 @@ class CategoryGet(BaseModel):
 
 class CategoryCreate(BaseModel):
     name: str
-

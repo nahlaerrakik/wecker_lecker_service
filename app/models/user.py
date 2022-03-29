@@ -1,7 +1,8 @@
-from sqlalchemy import func
+from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import func
 
 from app.sql.database import Base
 
@@ -15,3 +16,4 @@ class User(Base):
     password = Column(String)
     created_on = Column(Integer, nullable=False, default=func.current_timestamp())
     updated_on = Column(Integer, nullable=False, default=func.current_timestamp())
+    is_active = Column(Boolean, nullable=False, default=False)
