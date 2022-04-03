@@ -7,18 +7,14 @@ from sqlalchemy.orm import Session
 
 from app.crud.category import insert_category, query_category
 from app.crud.category import query_categories
+from app.data_access.database import get_db
 from app.schemas.category import CategoryCreate
 from app.schemas.category import CategoryGet
-from app.sql.database import Base
-from app.sql.database import engine
-from app.sql.database import get_db
-
-Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
 
-@router.post("/categories", response_model=CategoryGet, tags=["Categories"])
+@router.post("/categories", response_model=CategoryGet, tags=["Categories"], status_code=201)
 def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
     result = insert_category(db, category=category)
 

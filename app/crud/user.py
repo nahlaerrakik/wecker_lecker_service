@@ -1,9 +1,11 @@
 from typing import List
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
+from app.utils.timestamp import CURRENT_TIMESTAMP
 
 
 def insert_user(db: Session, user: UserCreate) -> User:
@@ -21,7 +23,7 @@ def insert_user(db: Session, user: UserCreate) -> User:
     return item
 
 
-def update_user(db: Session, user: UserUpdate) -> User | None:
+def update_user(db: Session, user: UserUpdate) -> Optional[User]:
     user_db = query_user(db, email=user.email)
     if user_db is None:
         return
@@ -34,6 +36,8 @@ def update_user(db: Session, user: UserUpdate) -> User | None:
         user_db.password = user.password
     if user.is_active:
         user_db.is_active = user.is_active
+
+    user_db.updated_on = CURRENT_TIMESTAMP
 
     db.add(user_db)
     db.commit()

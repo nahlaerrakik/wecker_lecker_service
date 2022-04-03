@@ -6,7 +6,7 @@ def test_create_category(client, mocker):
     mocker.patch('app.routes.category.insert_category', return_value=mocked_category)
 
     response = client.post("/categories", json={"name": "category1"})
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     result = response.json()
     assert result.get("id") == mocked_category.id

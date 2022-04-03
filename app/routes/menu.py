@@ -9,18 +9,14 @@ from app.crud.category import query_category
 from app.crud.menu import insert_menu
 from app.crud.menu import query_menu
 from app.crud.menu import query_menus
+from app.data_access.database import get_db
 from app.schemas.menu import MenuCreate
 from app.schemas.menu import MenuGet
-from app.sql.database import Base
-from app.sql.database import engine
-from app.sql.database import get_db
 
 router = APIRouter()
 
-Base.metadata.create_all(bind=engine)
 
-
-@router.post("/menus", response_model=MenuGet, tags=["Menus"])
+@router.post("/menus", response_model=MenuGet, tags=["Menus"], status_code=201)
 def create_menu(menu: MenuCreate, db: Session = Depends(get_db)):
     category = query_category(db, category_id=menu.category_id)
     if category is None:

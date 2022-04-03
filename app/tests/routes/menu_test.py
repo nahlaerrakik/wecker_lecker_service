@@ -17,7 +17,7 @@ def test_create_menu(client, mocker):
             "category_id": 100,
         }
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     result = response.json()
     assert result.get("id") == mocked_menu.id

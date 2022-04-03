@@ -4,10 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.main import api
-from app.sql.database import Base
-from app.sql.database import get_db
+from app.data_access.database import Base
+from app.data_access.database import get_db
 
-SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\\wecker_lecker_service\\app\\sql\\test.db"
+SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\\wecker_lecker_service\\app\\data_access\\test.db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

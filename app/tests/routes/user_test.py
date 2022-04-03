@@ -1,16 +1,20 @@
-import json
+import pytest
 
 from app.models.user import User
 
 
-def test_create_user(client, mocker):
-    mocked_user = User(
+@pytest.fixture
+def mock_user():
+    return User(
         email="joe@doe.com",
         first_name="joe",
         last_name="doe",
         password="joedoe",
     )
-    mocker.patch('app.routes.user.insert_user', return_value=mocked_user)
+
+
+def test_create_user(client, mock_user, mocker):
+    mocker.patch('app.routes.user.insert_user', return_value=mock_user)
     mocker.patch('app.routes.user.get_password_hash', return_value="mocked_hashed_password")
 
     response = client.post(
@@ -22,24 +26,18 @@ def test_create_user(client, mocker):
             "password": "joedoe",
         }
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     result = response.json()
-    assert result.get("email") == mocked_user.email
-    assert result.get("first_name") == mocked_user.first_name
-    assert result.get("last_name") == mocked_user.last_name
-    assert result.get("created_on") == mocked_user.created_on
-    assert result.get("updated_on") == mocked_user.updated_on
+    assert result.get("email") == mock_user.email
+    assert result.get("first_name") == mock_user.first_name
+    assert result.get("last_name") == mock_user.last_name
+    assert result.get("created_on") == mock_user.created_on
+    assert result.get("updated_on") == mock_user.updated_on
 
 
-def test_create_user_already_exist(client, mocker):
-    mocked_existent_user = User(
-        email="joe@doe.com",
-        first_name="joe",
-        last_name="doe",
-        password="joedoe",
-    )
-    mocker.patch('app.routes.user.query_user', return_value=mocked_existent_user)
+def test_create_user_already_exist(client, mock_user, mocker):
+    mocker.patch('app.routes.user.query_user', return_value=mock_user)
 
     response = client.post(
         url="/users",
@@ -56,19 +54,13 @@ def test_create_user_already_exist(client, mocker):
     assert result == {"detail": "User joe@doe.com already exists"}
 
 
-def test_login(client, mocker):
-    mocked_user = User(
-        email="joe@doe.com",
-        first_name="joe",
-        last_name="doe",
-        password="joedoe",
-    )
-    mocker.patch('app.routes.user.authenticate_user', return_value=mocked_user)
+def test_login(client, mock_user, mocker):
+    mocker.patch('app.routes.user.authenticate_user', return_value=mock_user)
     mocker.patch('app.routes.user.create_access_token', return_value="token")
     mocker.patch('app.routes.user.update_user', return_value=None)
 
     response = client.post(
-        url="/token",
+        url="/login",
         data={
             "username": "joe@doe.com",
             "password": "joedoe",
@@ -85,7 +77,7 @@ def test_login_with_invalid_credentials(client, mocker):
     mocker.patch('app.routes.user.authenticate_user', return_value=False)
 
     response = client.post(
-        url="/token",
+        url="/login",
         data={
             "username": "joe@doe.com",
             "password": "joedoe",

@@ -1,7 +1,40 @@
-from app.crud.user import insert_user, update_user
+from unittest import mock
+
+import pytest
+import pytest_mock.plugin
+
+from app.crud.user import insert_user
+from app.crud.user import update_user
 from app.crud.user import query_user
 from app.crud.user import query_users
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate
+from app.schemas.user import UserUpdate
+
+
+@pytest.fixture
+def mock_user(session):
+    user = UserCreate(
+        email="joe@doe.com",
+        first_name="joe",
+        last_name="doe",
+        password="joedoe",
+    )
+
+    return insert_user(db=session, user=user)
+
+
+@pytest.fixture
+def mock_user_list(session):
+    user1 = insert_user(
+        db=session,
+        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
+    )
+    user2 = insert_user(
+        db=session,
+        user=UserCreate(email="jane@doe.com", first_name="jane", last_name="doe", password="janedoe", )
+    )
+
+    return [user1, user2]
 
 
 def test_insert_user(session):
@@ -17,6 +50,9 @@ def test_insert_user(session):
     assert result.first_name == user1.first_name.capitalize()
     assert result.last_name == user1.last_name.upper()
     assert result.password == user1.password
+    assert result.created_on == mock.ANY
+    assert result.updated_on == mock.ANY
+    assert result.is_active is False
 
     user2 = UserCreate(
         email="jane@doe.com",
@@ -29,27 +65,15 @@ def test_insert_user(session):
     assert result.first_name == user2.first_name.capitalize()
     assert result.last_name == user2.last_name.upper()
     assert result.password == user2.password
+    assert result.created_on == mock.ANY
+    assert result.updated_on == mock.ANY
+    assert result.is_active is False
 
 
-def test_query_users_multiple_result(session):
-    user1 = insert_user(
-        db=session,
-        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
-    )
-    user2 = insert_user(
-        db=session,
-        user=UserCreate(email="jane@doe.com", first_name="jane", last_name="doe", password="janedoe", )
-    )
-
-    user1.first_name = user1.first_name.capitalize()
-    user1.last_name = user1.first_name.upper()
-
-    user2.first_name = user2.first_name.capitalize()
-    user2.last_name = user2.first_name.upper()
-
+def test_query_users_multiple_result(session, mock_user_list):
     result = query_users(db=session)
-    assert len(result) == 2
-    assert result == [user1, user2]
+    assert len(result) == len(mock_user_list)
+    assert result == mock_user_list
 
 
 def test_query_users_empty_result(session):
@@ -75,67 +99,55 @@ def test_query_user_non_existent_user(session):
     assert result is None
 
 
-def test_update_user_first_name(session):
-    user = insert_user(
-        db=session,
-        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
-    )
-
-    user_update = UserUpdate(email=user.email, first_name="test")
+def test_update_user_first_name(session, mock_user):
+    user_update = UserUpdate(email=mock_user.email, first_name="test")
     result = update_user(db=session, user=user_update)
 
-    assert result.email == user.email
+    assert result.email == mock_user.email
     assert result.first_name == "Test"
-    assert result.last_name == user.last_name.upper()
-    assert result.password == user.password
+    assert result.last_name == mock_user.last_name.upper()
+    assert result.password == mock_user.password
+    assert result.created_on == mock_user.created_on
+    assert result.updated_on == mock.ANY
     assert result.is_active is False
 
 
-def test_update_user_last_name(session):
-    user = insert_user(
-        db=session,
-        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
-    )
-
-    user_update = UserUpdate(email=user.email, last_name="test")
+def test_update_user_last_name(session, mock_user):
+    user_update = UserUpdate(email=mock_user.email, last_name="test")
     result = update_user(db=session, user=user_update)
 
-    assert result.email == user.email
-    assert result.first_name == user.first_name.capitalize()
+    assert result.email == mock_user.email
+    assert result.first_name == mock_user.first_name.capitalize()
     assert result.last_name == "TEST"
-    assert result.password == user.password
+    assert result.password == mock_user.password
+    assert result.created_on == mock_user.created_on
+    assert result.updated_on == mock.ANY
     assert result.is_active is False
 
 
-def test_update_user_password(session):
-    user = insert_user(
-        db=session,
-        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
-    )
-
-    user_update = UserUpdate(email=user.email, password="test")
+def test_update_user_password(session, mock_user):
+    user_update = UserUpdate(email=mock_user.email, password="test")
     result = update_user(db=session, user=user_update)
 
-    assert result.email == user.email
-    assert result.first_name == user.first_name.capitalize()
-    assert result.last_name == user.last_name.upper()
+    assert result.email == mock_user.email
+    assert result.first_name == mock_user.first_name.capitalize()
+    assert result.last_name == mock_user.last_name.upper()
     assert result.password == "test"
+    assert result.created_on == mock_user.created_on
+    assert result.updated_on == mock.ANY
     assert result.is_active is False
 
 
-def test_update_user_is_active(session):
-    user = insert_user(
-        db=session,
-        user=UserCreate(email="joe@doe.com", first_name="joe", last_name="doe", password="joedoe", )
-    )
-
-    user_update = UserUpdate(email=user.email, is_active=True)
+def test_update_user_is_active(session, mock_user):
+    user_update = UserUpdate(email=mock_user.email, is_active=True)
     result = update_user(db=session, user=user_update)
 
-    assert result.email == user.email
-    assert result.first_name == user.first_name.capitalize()
-    assert result.last_name == user.last_name.upper()
-    assert result.password == user.password
+    assert result.email == mock_user.email
+    assert result.first_name == mock_user.first_name.capitalize()
+    assert result.last_name == mock_user.last_name.upper()
+    assert result.password == mock_user.password
+    assert result.created_on == mock_user.created_on
+    assert result.updated_on == mock.ANY
     assert result.is_active is True
 
 

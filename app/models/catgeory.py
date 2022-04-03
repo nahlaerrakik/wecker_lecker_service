@@ -2,7 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from app.sql.database import Base
+from app.data_access.database import Base
 
 
 class Category(Base):

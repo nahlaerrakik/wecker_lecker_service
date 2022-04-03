@@ -4,7 +4,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import func
 
-from app.sql.database import Base
+from app.data_access.database import Base
 
 
 class User(Base):
