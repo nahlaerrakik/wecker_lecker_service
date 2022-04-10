@@ -1,8 +1,5 @@
-import calendar
-import time
-
-# Current GMT time in a tuple format
-current_GMT = time.gmtime()
+from datetime import datetime
+from datetime import timezone
 
 # ts stores timestamp
-CURRENT_TIMESTAMP = calendar.timegm(current_GMT)
+CURRENT_TIMESTAMP = datetime.now(timezone.utc)

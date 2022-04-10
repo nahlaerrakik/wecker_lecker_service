@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from app.data_access.database import Base
+from app.database import Base
 
 
 class Menu(Base):
@@ -12,7 +12,8 @@ class Menu(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     name = Column(String)
-    description = Column(String)
+    short_description = Column(String)
+    full_description = Column(String)
     price = Column(Float)
     image = Column(String)
     category_id = Column(Integer, ForeignKey("categories.id"))

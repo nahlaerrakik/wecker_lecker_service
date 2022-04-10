@@ -1,10 +1,11 @@
 from sqlalchemy import Boolean
 from sqlalchemy import Column
-from sqlalchemy import Integer
+from sqlalchemy import DateTime
 from sqlalchemy import String
 from sqlalchemy import func
+from sqlalchemy.orm import relationship
 
-from app.data_access.database import Base
+from app.database import Base
 
 
 class User(Base):
@@ -14,6 +15,8 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     password = Column(String)
-    created_on = Column(Integer, nullable=False, default=func.current_timestamp())
-    updated_on = Column(Integer, nullable=False, default=func.current_timestamp())
+    created_on = Column(DateTime, nullable=False, default=func.current_timestamp())
+    updated_on = Column(DateTime, nullable=False, default=func.current_timestamp())
     is_active = Column(Boolean, nullable=False, default=False)
+
+    orders = relationship("Order")

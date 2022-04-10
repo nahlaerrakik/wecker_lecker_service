@@ -19,7 +19,7 @@ def test_create_order(client, mock_order, mocker):
     mocker.patch('app.routes.order.insert_order', return_value=mock_order)
 
     response = client.post(
-        url="/orders",
+        url="/api/v1/orders",
         json={
             "user_id": "joedoe@gmail.com",
         }
@@ -35,14 +35,14 @@ def test_create_order(client, mock_order, mocker):
 
 
 def test_update_order(client, mock_order, mocker):
-    mocker.patch('app.routes.order.OrderStatus.from_string', return_value=OrderStatus.PLACED)
+    mocker.patch('app.routes.order.validate_order_status', return_value=None)
     mocker.patch('app.routes.order.query_order', return_value=mock_order)
 
     mock_order.status = OrderStatus.PROCESSING
     mocker.patch('app.routes.order.update_order_db', return_value=mock_order)
 
     response = client.patch(
-        url="/orders",
+        url="/api/v1/orders",
         json={
             "id": 1,
             "status": "PROCESSING",
@@ -59,11 +59,11 @@ def test_update_order(client, mock_order, mocker):
 
 
 def test_update_order_with_non_existent_order_id(client, mocker):
-    mocker.patch('app.routes.order.OrderStatus.from_string', return_value=OrderStatus.PLACED)
+    mocker.patch('app.routes.order.validate_order_status', return_value=None)
     mocker.patch('app.routes.order.query_order', return_value=None)
 
     response = client.patch(
-        url="/orders",
+        url="/api/v1/orders",
         json={
             "id": 1,
             "status": "PROCESSING",
@@ -75,20 +75,18 @@ def test_update_order_with_non_existent_order_id(client, mocker):
     assert result == {"detail": f"Order with id {1} does not exist."}
 
 
-def test_update_order_with_invalid_order_status(client, mocker):
-    mocker.patch('app.routes.order.OrderStatus.from_string', return_value=OrderStatus.UNKNOWN)
-
+def test_update_order_with_invalid_order_status(client):
     response = client.patch(
-        url="/orders",
+        url="/api/v1/orders",
         json={
             "id": 1,
             "status": "TEST",
         }
     )
-    assert response.status_code == 404
+    assert response.status_code == 400
 
     result = response.json()
-    assert result == {"detail": f"Order Status is not valid, should be one of the following values {OrderStatus.list_values()}."}
+    assert result == {"detail": f"Invalid order_status TEST, should be one of the following values {OrderStatus.list_values()}."}
 
 
 

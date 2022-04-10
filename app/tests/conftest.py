@@ -4,10 +4,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.main import api
-from app.data_access.database import Base
-from app.data_access.database import get_db
+from app.database import Base
+from app.database import get_db
+from app.config import config
 
-SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\\wecker_lecker_service\\app\\data_access\\test.db"
+CONFIG = config(env="test").get_db_config()
+
+
+# SQLALCHEMY_DATABASE_URL = r"sqlite:///D:\\wecker_lecker_service\\app\\data_access\\test.db"
+SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{CONFIG.username}:{CONFIG.password}@{CONFIG.hostname}/{CONFIG.database}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

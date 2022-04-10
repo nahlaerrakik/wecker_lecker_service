@@ -18,7 +18,7 @@ def test_create_user(client, mock_user, mocker):
     mocker.patch('app.routes.user.get_password_hash', return_value="mocked_hashed_password")
 
     response = client.post(
-        url="/users",
+        url="/api/v1/users/register",
         json={
             "email": "joe@doe.com",
             "first_name": "joe",
@@ -40,7 +40,7 @@ def test_create_user_already_exist(client, mock_user, mocker):
     mocker.patch('app.routes.user.query_user', return_value=mock_user)
 
     response = client.post(
-        url="/users",
+        url="/api/v1/users/register",
         json={
             "email": "joe@doe.com",
             "first_name": "joe",
@@ -60,7 +60,7 @@ def test_login(client, mock_user, mocker):
     mocker.patch('app.routes.user.update_user', return_value=None)
 
     response = client.post(
-        url="/login",
+        url="/api/v1/login",
         data={
             "username": "joe@doe.com",
             "password": "joedoe",
@@ -77,7 +77,7 @@ def test_login_with_invalid_credentials(client, mocker):
     mocker.patch('app.routes.user.authenticate_user', return_value=False)
 
     response = client.post(
-        url="/login",
+        url="/api/v1/login",
         data={
             "username": "joe@doe.com",
             "password": "joedoe",

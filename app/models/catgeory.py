@@ -1,8 +1,9 @@
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy.orm import relationship
 
-from app.data_access.database import Base
+from app.database import Base
 
 
 class Category(Base):
@@ -10,3 +11,6 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     name = Column(String)
+
+    menus = relationship("Menu")
+

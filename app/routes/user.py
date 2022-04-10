@@ -9,11 +9,10 @@ from sqlalchemy.orm import Session
 from app.crud.user import insert_user
 from app.crud.user import query_user
 from app.crud.user import update_user
-from app.data_access.database import get_db
+from app.database import get_db
 from app.logic.user import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.logic.user import authenticate_user
 from app.logic.user import create_access_token
-from app.logic.user import get_current_active_user
 from app.logic.user import get_password_hash
 from app.schemas.user import Token
 from app.schemas.user import UserCreate
@@ -24,7 +23,7 @@ from app.utils.exceptions import INVALID_CREDENTIALS_EXCEPTION
 router = APIRouter()
 
 
-@router.post("/users", response_model=UserGet, tags=["Users"], status_code=201)
+@router.post("/api/v1/users/register", response_model=UserGet, tags=["Users"], status_code=201)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     if query_user(db, email=user.email) is not None:
         raise HTTPException(status_code=400, detail=f"User {user.email} already exists", )
@@ -39,7 +38,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     )
 
 
-@router.post("/login", response_model=Token, tags=["Users"])
+@router.post("/api/v1/login", response_model=Token, tags=["Users"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, email=form_data.username, password=form_data.password)
     if not user:
@@ -58,6 +57,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     )
 
 
+"""
 @router.get("/users/me", response_model=UserGet, tags=["Users"])
 async def read_users_me(current_user: UserGet = Depends(get_current_active_user)):
     return current_user
+"""

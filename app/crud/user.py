@@ -4,7 +4,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate
+from app.schemas.user import UserUpdate
 from app.utils.timestamp import CURRENT_TIMESTAMP
 
 

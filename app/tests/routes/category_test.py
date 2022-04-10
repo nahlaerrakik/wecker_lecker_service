@@ -5,7 +5,7 @@ def test_create_category(client, mocker):
     mocked_category = Category(id=1, name="category1")
     mocker.patch('app.routes.category.insert_category', return_value=mocked_category)
 
-    response = client.post("/categories", json={"name": "category1"})
+    response = client.post("/api/v1/categories", json={"name": "category1"})
     assert response.status_code == 201
 
     result = response.json()
@@ -20,7 +20,7 @@ def test_get_categories_multiple_result(client, mocker):
     ]
     mocker.patch('app.routes.category.query_categories', return_value=mocked_category_list)
 
-    response = client.get("/categories")
+    response = client.get("/api/v1/categories")
     assert response.status_code == 200
 
     result = response.json()
@@ -34,7 +34,7 @@ def test_get_categories_multiple_result(client, mocker):
 def test_get_categories_empty_result(client, mocker):
     mocker.patch('app.routes.category.query_categories', return_value=[])
 
-    response = client.get("/categories")
+    response = client.get("/api/v1/categories")
     assert response.status_code == 200
 
     result = response.json()
@@ -46,7 +46,7 @@ def test_get_category(client, mocker):
     mocked_category = Category(id=1, name="category1")
     mocker.patch('app.routes.category.query_category', return_value=mocked_category)
 
-    response = client.get("/categories/1")
+    response = client.get("/api/v1/categories/1")
     assert response.status_code == 200
 
     result = response.json()
@@ -56,7 +56,7 @@ def test_get_category(client, mocker):
 def test_get_category_not_found(client, mocker):
     mocker.patch('app.routes.category.query_category', return_value=None)
 
-    response = client.get("/categories/1")
+    response = client.get("/api/v1/categories/1")
     assert response.status_code == 404
 
     result = response.json()
